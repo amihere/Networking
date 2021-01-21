@@ -8,11 +8,11 @@
 import Foundation
 
 public class Networking {
-    static func getDefault(tokenFinder: @escaping () -> String) -> Networkable {
+    public static func getDefault(tokenFinder: @escaping () -> String) -> Networkable {
         BasicNetworking(tokenFinder: tokenFinder)
     }
     
-    static func getDefault(tokenFinder: @escaping () -> String, jsonDecoder: @escaping () -> JSONDecoder) -> Networkable {
+    public static func getDefault(tokenFinder: @escaping () -> String, jsonDecoder: @escaping () -> JSONDecoder) -> Networkable {
         BasicNetworking(tokenFinder: tokenFinder, jsonDecoder: jsonDecoder)
     }
 }
