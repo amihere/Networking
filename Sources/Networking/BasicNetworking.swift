@@ -91,16 +91,16 @@ internal class BasicNetworking: Networkable, NetworkableError {
     }
     
     public func patchSignatureImage<K: Codable>(url: URL, parameters: [String: String], imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
-        imageHelper(url: url, method: .PATCH, parameters: parameters, imageData: imageData, completion: completion)
+        imageUploadHelper(url: url, method: .PATCH, parameters: parameters, imageData: imageData, completion: completion)
     }
     
     /// Upload image to url, parameters will be added within a multipart form.
     public func postImage<K: Codable>(url: URL, parameters: [String: String]?, imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
-        imageHelper(url: url, method: .POST, parameters: parameters, imageData: imageData, completion: completion)
+        imageUploadHelper(url: url, method: .POST, parameters: parameters, imageData: imageData, completion: completion)
     }
     
     /// Upload image to url, parameters will be added within a multipart form.
-    func imageHelper<K: Codable>(url: URL, method: HTTPMethod, parameters: [String: String]?, imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
+    func imageUploadHelper<K: Codable>(url: URL, method: HTTPMethod, parameters: [String: String]?, imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
         // generate boundary string using a unique per-app string
         let boundary = createBoundary()
         
