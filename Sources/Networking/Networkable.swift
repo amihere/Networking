@@ -18,6 +18,8 @@ public class Networking {
 }
 
 public protocol Networkable: AnyObject {
+    typealias Result<K> = Networking.Result<K>
+    
     var tokenFinder: (() -> String)? { get }
     var delegate: NetworkableDelegate? {get}
     
@@ -35,12 +37,9 @@ public enum HTTPMethod: String {
     case PATCH = "PATCH"
 }
 
-public enum Result<T> {
-    case success(T)
-    case failure(Error)
-}
-
 public protocol NetworkableDelegate: AnyObject {
+    typealias HTTPStatusCode = Networking.HTTPStatusCode
+    
     func shouldRefreshToken(status: HTTPStatusCode) -> Bool
     func unauthorizedHandler()
 }
@@ -54,14 +53,9 @@ extension NetworkableDelegate {
     }
 }
 
-public protocol NetworkableError {}
-
-extension NetworkableError {
-    func hasServerErrors(_ response: HTTPURLResponse?) -> Bool {
-        if let response = response,
-           (!(200...299).contains(response.statusCode)) {
-            return true
-        }
-        return false
+extension Networking {
+    public enum Result<T> {
+        case success(T)
+        case failure(Error)
     }
 }

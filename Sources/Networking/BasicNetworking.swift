@@ -20,6 +20,10 @@ internal class BasicNetworking: Networkable, NetworkableError {
     let jsonEncoder: () -> JSONEncoder
     let jsonDecoder: () -> JSONDecoder
     
+    typealias BeautifiedError = Networking.BeautifiedError
+    typealias HTTPStatusCode = Networking.HTTPStatusCode
+    typealias Result = Networking.Result
+    
     init(tokenFinder: @escaping () -> String,
          jsonEncoder: @escaping () -> JSONEncoder = {JSONEncoder()},
          jsonDecoder: @escaping () -> JSONDecoder = {JSONDecoder()}) {
@@ -64,7 +68,7 @@ internal class BasicNetworking: Networkable, NetworkableError {
         return request
     }
     
-    public func custom<K: Codable>(_ request: URLRequest, completion: @escaping (Result<K>) -> Void) {
+    public func custom<K: Codable>(_ request: URLRequest, completion: @escaping (Networking.Result<K>) -> Void) {
         dataTaskHelper(request, isImageConfig: false, completion: completion)
     }
     
