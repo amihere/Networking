@@ -309,7 +309,7 @@ extension Networking {
 
 public protocol NetworkableError {}
 
-extension NetworkableError {
+public extension NetworkableError {
     func hasServerErrors(_ response: HTTPURLResponse?) -> Bool {
         if let response = response,
            (!(200...299).contains(response.statusCode)) {
@@ -320,7 +320,7 @@ extension NetworkableError {
 }
 
 //MARK:- Url response status override
-extension HTTPURLResponse {
+public extension HTTPURLResponse {
     var status: Networking.HTTPStatusCode? {
         return Networking.HTTPStatusCode(rawValue: statusCode)
     }
