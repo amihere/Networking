@@ -44,7 +44,7 @@ public protocol NetworkableDelegate: AnyObject {
     func unauthorizedHandler()
 }
 
-extension NetworkableDelegate {
+public extension NetworkableDelegate {
     func shouldRefreshToken(status: HTTPStatusCode) -> Bool {
         if case HTTPStatusCode.unauthorized = status {
             return true
