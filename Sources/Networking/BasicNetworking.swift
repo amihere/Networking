@@ -68,8 +68,16 @@ internal class BasicNetworking: Networkable, NetworkableError {
         return request
     }
     
-    public func custom<K: Codable>(_ request: URLRequest, completion: @escaping (Networking.Result<K>) -> Void) {
-        dataTaskHelper(request, isImageConfig: false, completion: completion)
+    /// Gets resources from a specified URL
+    public func get(url: URL, isAuthenticated: Bool, completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
+        
+        let request: URLRequest = createNewRequest(url: url, method: HTTPMethod.GET, isAuthenticated: isAuthenticated)
+        let session: URLSession = URLSession(configuration: getSessionConfig(isImageConfig: false))
+        
+        let task: URLSessionDataTask = session.dataTask(with: request) { data, response, error in
+            completion(data,response,error)
+        }
+        task.resume()
     }
     
     /// Gets resources from a specified URL
