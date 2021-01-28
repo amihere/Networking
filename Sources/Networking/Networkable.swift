@@ -21,7 +21,7 @@ public protocol Networkable: AnyObject {
     typealias Result<K> = Networking.Result<K>
     
     var tokenFinder: (() -> String)? { get }
-    var delegate: NetworkableDelegate? {get}
+    var delegate: NetworkableDelegate? {get set}
     
     func patchSignatureImage<K: Codable>(url: URL, parameters: [String: String], imageData: [String: Data], completion: @escaping (Result<K>) -> Void)
     func patch<Posted: Codable, K: Codable>(url: URL, parameters: Posted, isAuthenticated: Bool, completion: @escaping (Result<K>) -> Void)
