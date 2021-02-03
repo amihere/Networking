@@ -87,6 +87,12 @@ internal class BasicNetworking: Networkable, NetworkableError {
         dataTaskHelper(request, isImageConfig: false, completion: completion)
     }
     
+    public func perform<K: Codable>(request: URLRequest, method: HTTPMethod, completion: @escaping (Result<K>) -> Void) {
+        var synthesizedRequest: URLRequest = request
+        synthesizedRequest.httpMethod = method.rawValue
+        dataTaskHelper(synthesizedRequest, isImageConfig: false, completion: completion)
+    }
+    
     public func patch<Posted: Codable, K: Codable>(url: URL, parameters: Posted, isAuthenticated: Bool, completion: @escaping (Result<K>) -> Void) {
         
         //now creating the URLRequest object using the url object
