@@ -157,7 +157,7 @@ extension BasicNetworking {
             NSLog("Configure refresh token completion")
             return
         }
-        delegate.unauthorizedHandler()
+        delegate.unauthorizedHandler(networking: self)
     }
 }
 

@@ -42,7 +42,7 @@ public protocol NetworkableDelegate: AnyObject {
     typealias HTTPStatusCode = Networking.HTTPStatusCode
     
     func shouldRefreshToken(status: HTTPStatusCode) -> Bool
-    func unauthorizedHandler()
+    func unauthorizedHandler(networking: Networkable)
 }
 
 public extension NetworkableDelegate {
