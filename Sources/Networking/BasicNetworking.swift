@@ -120,11 +120,12 @@ internal class BasicNetworking: Networkable, NetworkableError {
     /// Upload image to url, parameters will be added within a multipart form.
     func imageUploadHelper<K: Codable>(url: URL, method: HTTPMethod, parameters: [String: String]?, imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
         // generate boundary string using a unique per-app string
-        let boundary = createBoundary()
+        let boundary: String = createBoundary()
+        let lineBreak: String = "\r\n"
+        let formParameter: String = "files"
         
         // Set Content-Type Header to multipart/form-data, this is equivalent to submitting form data with file upload in a web browser
         // And the boundary is also set here
-        //var request = createNewRequest(url: url, method: HTTPMethod.POST, isAuthenticated: true)
         var request = createNewRequest(url: url, method: method, isAuthenticated: true)
         
         //request.setValue("*/*", forHTTPHeaderField: ACCEPT_HEADER)
@@ -133,19 +134,13 @@ internal class BasicNetworking: Networkable, NetworkableError {
         var data: Data = Data()
         
         // MARK:- Image is always in jpg
-        let imageKey = "files"
-        for (path, value) in imageData {
+        for (photo) in imageData {
             // Add the image data to the raw http request data
             data.append(getBoundary(boundary))
-            data.append("Content-Disposition: form-data; name=\"\(imageKey)\"; filename=\"\(path)\"\r\n")
-            data.append("Content-Type: image/jpg\r\n\r\n")
-            data.append(value)
-        }
-        
-        parameters?.forEach {
-            data.append(getBoundary(boundary))
-            data.append("Content-Disposition: form-data; name=\"\($0)\"\r\n\r\n")
-            data.append($1)
+            data.append("Content-Disposition: form-data; name=\"\(formParameter)\"; filename=\"\(photo.key)\"\(lineBreak)")
+            data.append("Content-Type: image/jpg\(lineBreak)\(lineBreak)")
+            data.append(photo.value)
+            data.append(lineBreak)
         }
         
         // End the raw http request data, note that there is 2 extra dash ("-") at the end, this is to indicate the end of the data
@@ -217,11 +212,11 @@ extension BasicNetworking {
 //MARK:- Helpers
 extension BasicNetworking {
     func createBoundary() -> String {
-        UUID().uuidString
+        "B-\(UUID().uuidString)"
     }
     
-    func getBoundary(_ boundary: String, isTerminating end: Bool = false) -> String {
-        return "\r\n--\(boundary)\(end ? "--" : "")\r\n"
+    func getBoundary(_ boundary: String, isTerminating end: Bool = false, lineBreak: String = "\r\n") -> String {
+        return "--\(boundary)\(end ? "--" : "")\(lineBreak)"
     }
     
     func printError(_ data: Data) {
