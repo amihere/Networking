@@ -147,6 +147,7 @@ internal class BasicNetworking: Networkable, NetworkableError {
         data.append(getBoundary(boundary, isTerminating: true))
         
         request.httpBody = data
+        print(request)
         dataTaskHelper(request, isImageConfig: true, completion: completion)
     }
 }
