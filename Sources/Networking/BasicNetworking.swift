@@ -147,7 +147,9 @@ internal class BasicNetworking: Networkable, NetworkableError {
         data.append(getBoundary(boundary, isTerminating: true))
         
         request.httpBody = data
-        print(request)
+        
+        printError(data)
+        print(data as NSData)
         dataTaskHelper(request, isImageConfig: true, completion: completion)
     }
 }
