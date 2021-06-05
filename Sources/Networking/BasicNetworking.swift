@@ -148,8 +148,10 @@ internal class BasicNetworking: Networkable, NetworkableError {
         
         request.httpBody = data
         
-        printError(data)
-        print(data as NSData)
+        let str = String(decoding: request.httpBody!, as: UTF8.self)
+        print("BODY: \n \(str)")
+        print("HEADERS: \n \(request.allHTTPHeaderFields ?? [:])")
+        
         dataTaskHelper(request, isImageConfig: true, completion: completion)
     }
 }
@@ -170,7 +172,6 @@ extension BasicNetworking {
     private func dataTaskHelper<K: Codable>(_ request: URLRequest, isImageConfig: Bool, completion: @escaping (Result<K>) -> Void) {
         //creating dataTask using the session object to send data to the server
         let session: URLSession = URLSession(configuration: getSessionConfig(isImageConfig: isImageConfig))
-        
         let task: URLSessionDataTask = session.dataTask(with: request) { [unowned self] data, response, error in
             let response: HTTPURLResponse? = response as? HTTPURLResponse
             
