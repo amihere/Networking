@@ -148,10 +148,6 @@ internal class BasicNetworking: Networkable, NetworkableError {
         
         request.httpBody = data
         
-        let str = String(decoding: request.httpBody!, as: UTF8.self)
-        print("BODY: \n \(str)")
-        print("HEADERS: \n \(request.allHTTPHeaderFields ?? [:])")
-        
         dataTaskHelper(request, isImageConfig: true, completion: completion)
     }
 }
