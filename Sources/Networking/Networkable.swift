@@ -8,6 +8,10 @@
 import Foundation
 
 public class Networking {
+    public static func getImproved(tokenFinder: @escaping () -> String) -> Networkable {
+        VideoNetworking(tokenFinder: tokenFinder)
+    }
+    
     public static func getDefault(tokenFinder: @escaping () -> String) -> Networkable {
         BasicNetworking(tokenFinder: tokenFinder)
     }

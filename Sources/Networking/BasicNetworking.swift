@@ -33,9 +33,9 @@ internal class BasicNetworking: Networkable, NetworkableError {
     }
     
     /// Configures the timeout information
-    private func getSessionConfig(isImageConfig: Bool = false) -> URLSessionConfiguration {
+    internal func getSessionConfig(_ requestTimeout: TimeInterval = 20.0) -> URLSessionConfiguration {
         let sessionConfig = URLSessionConfiguration.default
-        sessionConfig.timeoutIntervalForRequest = isImageConfig ? 50.0 : 20.0
+        sessionConfig.timeoutIntervalForRequest = requestTimeout
         sessionConfig.timeoutIntervalForResource = 30.0
         return sessionConfig
     }
@@ -72,7 +72,7 @@ internal class BasicNetworking: Networkable, NetworkableError {
     public func get(url: URL, isAuthenticated: Bool, completion: @escaping (Data?, URLResponse?, Error?) -> Void) {
         
         let request: URLRequest = createNewRequest(url: url, method: HTTPMethod.GET, isAuthenticated: isAuthenticated)
-        let session: URLSession = URLSession(configuration: getSessionConfig(isImageConfig: false))
+        let session: URLSession = URLSession(configuration: getSessionConfig())
         
         let task: URLSessionDataTask = session.dataTask(with: request) { data, response, error in
             completion(data,response,error)
@@ -84,20 +84,20 @@ internal class BasicNetworking: Networkable, NetworkableError {
     public func get<K: Codable>(url: URL, isAuthenticated: Bool, completion: @escaping (Result<K>) -> Void) {
         
         let request: URLRequest = createNewRequest(url: url, method: HTTPMethod.GET, isAuthenticated: isAuthenticated)
-        dataTaskHelper(request, isImageConfig: false, completion: completion)
+        dataTaskHelper(request, completion: completion)
     }
     
     public func perform<K: Codable>(request: URLRequest, method: HTTPMethod, completion: @escaping (Result<K>) -> Void) {
         var synthesizedRequest: URLRequest = request
         synthesizedRequest.httpMethod = method.rawValue
-        dataTaskHelper(synthesizedRequest, isImageConfig: false, completion: completion)
+        dataTaskHelper(synthesizedRequest, completion: completion)
     }
     
     public func patch<Posted: Codable, K: Codable>(url: URL, parameters: Posted, isAuthenticated: Bool, completion: @escaping (Result<K>) -> Void) {
         
         //now creating the URLRequest object using the url object
         let request: URLRequest = createPostRequest(url: url, withParameters: parameters, isAuthenticated: isAuthenticated, method: .PATCH)
-        dataTaskHelper(request, isImageConfig: false, completion: completion)
+        dataTaskHelper(request, completion: completion)
     }
     
     /// Posts resources to a specified URL
@@ -105,7 +105,7 @@ internal class BasicNetworking: Networkable, NetworkableError {
         
         //now creating the URLRequest object using the url object
         let request: URLRequest = createPostRequest(url: url, withParameters: parameters, isAuthenticated: isAuthenticated)
-        dataTaskHelper(request, isImageConfig: false, completion: completion)
+        dataTaskHelper(request, completion: completion)
     }
     
     public func patchSignatureImage<K: Codable>(url: URL, parameters: [String: String], imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
@@ -148,7 +148,7 @@ internal class BasicNetworking: Networkable, NetworkableError {
         
         request.httpBody = data
         
-        dataTaskHelper(request, isImageConfig: true, completion: completion)
+        dataTaskHelper(request, requestTimeout: 50.0, completion: completion)
     }
 }
 
@@ -165,9 +165,9 @@ extension BasicNetworking {
 
 //MARK:- Data processing
 extension BasicNetworking {
-    private func dataTaskHelper<K: Codable>(_ request: URLRequest, isImageConfig: Bool, completion: @escaping (Result<K>) -> Void) {
+    private func dataTaskHelper<K: Codable>(_ request: URLRequest, requestTimeout: TimeInterval = 20.0, completion: @escaping (Result<K>) -> Void) {
         //creating dataTask using the session object to send data to the server
-        let session: URLSession = URLSession(configuration: getSessionConfig(isImageConfig: isImageConfig))
+        let session: URLSession = URLSession(configuration: getSessionConfig(requestTimeout))
         let task: URLSessionDataTask = session.dataTask(with: request) { [unowned self] data, response, error in
             let response: HTTPURLResponse? = response as? HTTPURLResponse
             
@@ -226,7 +226,7 @@ extension BasicNetworking {
     }
 }
 
-fileprivate extension Data {
+internal extension Data {
     /// Append string to Data
     ///
     /// Rather than littering my code with calls to `data(using: .utf8)` to convert `String` values to `Data`, this wraps it in a nice convenient little extension to Data. This defaults to converting using UTF-8.
