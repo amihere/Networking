@@ -7,8 +7,8 @@
 
 import Foundation
 
-class VideoNetworking: BasicNetworking {
-    public func postMultipartContent<K: Codable>(url: URL, parameters: [String: String]?, contentMap: [String: (type: String, url: URL)], completion: @escaping (Result<K>) -> Void) {
+class ImprovedNetworking: BasicNetworking {
+    public override func postMultipartContent<K: Codable>(url: URL, parameters: [String: String]?, contentMap: [String: (type: String, url: URL)], completion: @escaping (Result<K>) -> Void) {
         multipartContentUploadHelper(url: url, method: .POST, parameters: parameters, contentMap: contentMap, completion: completion)
     }
     

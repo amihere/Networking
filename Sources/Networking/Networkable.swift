@@ -9,7 +9,7 @@ import Foundation
 
 public class Networking {
     public static func getImproved(tokenFinder: @escaping () -> String) -> Networkable {
-        VideoNetworking(tokenFinder: tokenFinder)
+        ImprovedNetworking(tokenFinder: tokenFinder)
     }
     
     public static func getDefault(tokenFinder: @escaping () -> String) -> Networkable {
@@ -18,6 +18,10 @@ public class Networking {
     
     public static func getDefault(tokenFinder: @escaping () -> String, jsonDecoder: @escaping () -> JSONDecoder) -> Networkable {
         BasicNetworking(tokenFinder: tokenFinder, jsonDecoder: jsonDecoder)
+    }
+    
+    public static func getImproved(tokenFinder: @escaping () -> String, jsonDecoder: @escaping () -> JSONDecoder) -> Networkable {
+        ImprovedNetworking(tokenFinder: tokenFinder, jsonDecoder: jsonDecoder)
     }
 }
 
