@@ -8,7 +8,6 @@
 import Foundation
 
 class VideoNetworking: BasicNetworking {
-    /// Upload content of all types, parameters will be added within a multipart form.
     public func postMultipartContent<K: Codable>(url: URL, parameters: [String: String]?, contentMap: [String: (type: String, url: URL)], completion: @escaping (Result<K>) -> Void) {
         multipartContentUploadHelper(url: url, method: .POST, parameters: parameters, contentMap: contentMap, completion: completion)
     }

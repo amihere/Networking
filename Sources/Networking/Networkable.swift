@@ -35,6 +35,13 @@ public protocol Networkable: AnyObject {
     func postImage<K: Codable>(url: URL, parameters: [String: String]?, imageData: [String: Data], completion: @escaping (Result<K>) -> Void)
     
     func perform<K: Codable>(request: URLRequest, method: HTTPMethod, completion: @escaping (Result<K>) -> Void)
+    /// Upload content of all types, parameters will be added within a multipart form.
+    /// - Parameters:
+    ///   - url: endpoint on the upload server
+    ///   - parameters: other important information e.g. metadata
+    ///   - contentMap: a map of filenames to a tuple with content type and file url
+    ///   - completion: a handler for results of the operation
+    func postMultipartContent<K: Codable>(url: URL, parameters: [String: String]?, contentMap: [String: (type: String, url: URL)], completion: @escaping (Result<K>) -> Void)
 }
 
 public enum HTTPMethod: String {

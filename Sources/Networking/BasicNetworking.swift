@@ -117,6 +117,10 @@ internal class BasicNetworking: Networkable, NetworkableError {
         imageUploadHelper(url: url, method: .POST, parameters: parameters, imageData: imageData, completion: completion)
     }
     
+    func postMultipartContent<K>(url: URL, parameters: [String : String]?, contentMap: [String : (type: String, url: URL)], completion: @escaping (Result<K>) -> Void) where K : Decodable, K : Encodable {
+        fatalError("postMultipartContent has not been implemented")
+    }
+    
     /// Upload image to url, parameters will be added within a multipart form.
     func imageUploadHelper<K: Codable>(url: URL, method: HTTPMethod, parameters: [String: String]?, imageData: [String: Data], completion: @escaping (Result<K>) -> Void) {
         // generate boundary string using a unique per-app string
