@@ -16,7 +16,6 @@ class ImprovedNetworking: BasicNetworking {
         // generate boundary string using a unique per-app string
         let boundary: String = createBoundary()
         let lineBreak: String = "\r\n"
-        let formParameter: String = "files"
         
         // Set Content-Type Header to multipart/form-data, this is equivalent to submitting form data with file upload in a web browser
         // And the boundary is also set here
