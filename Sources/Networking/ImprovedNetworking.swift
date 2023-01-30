@@ -34,7 +34,7 @@ class ImprovedNetworking: BasicNetworking {
             let fileData: Data! = try! Data(contentsOf: fileURL)
             // Add the image data to the raw http request data
             data.append(getBoundary(boundary))
-            data.append("Content-Disposition: form-data; name=\"\(formParameter)\"; filename=\"\(content.key)\"\(lineBreak)")
+            data.append("Content-Disposition: form-data; name=\"\(content.key)\"; filename=\"\(content.key)\"\(lineBreak)")
             data.append("Content-Type: \(contentType)\(lineBreak)\(lineBreak)")
             data.append(fileData)
             data.append(lineBreak)
@@ -46,7 +46,8 @@ class ImprovedNetworking: BasicNetworking {
         // set content length
         request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
         
-        upload(request, data: data) {
+        let timeout: TimeInterval = TimeInterval(contentMap.keys.count * 60)
+        upload(request, data: data, requestTimeout: timeout) {
             completion($0)
         }
     }
