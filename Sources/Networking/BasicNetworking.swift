@@ -169,7 +169,7 @@ extension BasicNetworking {
 
 //MARK:- Data processing
 extension BasicNetworking {
-    private func dataTaskHelper<K: Codable>(_ request: URLRequest, requestTimeout: TimeInterval = 20.0, completion: @escaping (Result<K>) -> Void) {
+    private func dataTaskHelper<K: Codable>(_ request: URLRequest, retryCount: Int = 0, requestTimeout: TimeInterval = 20.0, completion: @escaping (Result<K>) -> Void) {
         //creating dataTask using the session object to send data to the server
         let session: URLSession = URLSession(configuration: getSessionConfig(requestTimeout))
         let task: URLSessionDataTask = session.dataTask(with: request) { [unowned self] data, response, error in
@@ -178,7 +178,18 @@ extension BasicNetworking {
             if let error = error {
                 process(error: error, completion: completion)
             } else if hasServerErrors(response), let status = response?.status {
-                process(status: status, completion: completion)
+                
+                
+                if let delegate = delegate, delegate.shouldRefreshToken(status: status), retryCount < 1 {
+                    unauthorizedHandler()
+                    
+                    // wait
+                    sleep(1)
+                    
+                    dataTaskHelper(request, retryCount: retryCount + 1, completion: completion)
+                } else {
+                    process(status: status, completion: completion)
+                }
             } else if let jsonData = data {
                 parse(json: jsonData, completion: completion)
             }
@@ -188,10 +199,6 @@ extension BasicNetworking {
     
     func process<K: Codable>(status: HTTPStatusCode, completion: @escaping (Result<K>) -> Void) {
         NSLog(status.localizedDescription)
-        if let delegate = delegate, delegate.shouldRefreshToken(status: status) {
-            unauthorizedHandler()
-        }
-        #warning("might cause race conditions")
         completion(.failure(BeautifiedError.serverRejection))
     }
     
