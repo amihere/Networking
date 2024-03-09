@@ -181,11 +181,13 @@ extension BasicNetworking {
                 
                 
                 if let delegate = delegate, delegate.shouldRefreshToken(status: status), retryCount < 1 {
+                    NSLog( "ready: " + tokenFinder!() )
                     unauthorizedHandler()
                     
                     // wait
                     sleep(1)
                     
+                    NSLog( "later: " + tokenFinder!() )
                     dataTaskHelper(request, retryCount: retryCount + 1, completion: completion)
                 } else {
                     process(status: status, completion: completion)
