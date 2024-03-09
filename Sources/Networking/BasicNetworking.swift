@@ -40,6 +40,18 @@ internal class BasicNetworking: Networkable, NetworkableError {
         return sessionConfig
     }
     
+    func cloneRequest(request modelRequest: URLRequest, isAuthenticated: Bool) -> URLRequest {
+        var request = URLRequest(url: modelRequest.url!)
+        request.httpMethod = modelRequest.httpMethod
+        request.addValue(JSON_SPEC, forHTTPHeaderField: ACCEPT_HEADER)
+
+        if let tokenFinder = tokenFinder, isAuthenticated {
+            let authToken = tokenFinder()
+            request.addValue("\(AUTH_PREPEND) \(authToken)", forHTTPHeaderField: AUTH_HEADER)
+        }
+        return request
+    }
+    
     /// Make a new request with the url and authentication
     func createNewRequest(url: URL, method: HTTPMethod, isAuthenticated: Bool) -> URLRequest {
         var request = URLRequest(url: url)
@@ -181,13 +193,12 @@ extension BasicNetworking {
                 
                 
                 if let delegate = delegate, delegate.shouldRefreshToken(status: status), retryCount < 1 {
-                    NSLog( "ready: " + tokenFinder!() )
                     unauthorizedHandler()
                     
                     // wait
-                    sleep(1)
+                    sleep(2)
                     
-                    NSLog( "later: " + tokenFinder!() )
+                    let newRequest = cloneRequest(request: request, isAuthenticated: true)
                     dataTaskHelper(request, retryCount: retryCount + 1, completion: completion)
                 } else {
                     process(status: status, completion: completion)
