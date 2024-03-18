@@ -9,7 +9,7 @@ import Foundation
 
 internal class BasicNetworking: Networkable, NetworkableError {
     public let tokenFinder: (() -> String)?
-    public let unauthorizedHandler: (() -> ())?
+    public var unauthorizedHandler: (() -> ())?
     
     let CONTENT_TYPE_HEADER = "Content-Type"
     let ACCEPT_HEADER = "Accept"
