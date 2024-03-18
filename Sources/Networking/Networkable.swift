@@ -27,9 +27,12 @@ public class Networking {
 
 public protocol Networkable: AnyObject {
     typealias Result<K> = Networking.Result<K>
+    typealias HTTPStatusCode = Networking.HTTPStatusCode
+    
+    func shouldRefreshToken(status: HTTPStatusCode) -> Bool
     
     var tokenFinder: (() -> String)? { get }
-    var delegate: NetworkableDelegate? {get set}
+    var unauthorizedHandler: (() -> ())? { get }
     
     func patchSignatureImage<K: Codable>(url: URL, parameters: [String: String], imageData: [String: Data], completion: @escaping (Result<K>) -> Void)
     func patch<Posted: Codable, K: Codable>(url: URL, parameters: Posted, isAuthenticated: Bool, completion: @escaping (Result<K>) -> Void)
@@ -46,6 +49,8 @@ public protocol Networkable: AnyObject {
     ///   - contentMap: a map of filenames to a tuple with content type and file url
     ///   - completion: a handler for results of the operation
     func postMultipartContent<K: Codable>(url: URL, parameters: [String: String]?, contentMap: [String: (type: String, url: URL)], completion: @escaping (Result<K>) -> Void)
+    
+    
 }
 
 public enum HTTPMethod: String {
@@ -55,14 +60,7 @@ public enum HTTPMethod: String {
     case PATCH = "PATCH"
 }
 
-public protocol NetworkableDelegate: AnyObject {
-    typealias HTTPStatusCode = Networking.HTTPStatusCode
-    
-    func shouldRefreshToken(status: HTTPStatusCode) -> Bool
-    func unauthorizedHandler(networking: Networkable)
-}
-
-public extension NetworkableDelegate {
+public extension Networkable {
     func shouldRefreshToken(status: HTTPStatusCode) -> Bool {
         if case HTTPStatusCode.unauthorized = status {
             return true

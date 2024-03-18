@@ -8,8 +8,8 @@
 import Foundation
 
 internal class BasicNetworking: Networkable, NetworkableError {
-    public weak var delegate: NetworkableDelegate?
     public let tokenFinder: (() -> String)?
+    public let unauthorizedHandler: (() -> ())?
     
     let CONTENT_TYPE_HEADER = "Content-Type"
     let ACCEPT_HEADER = "Accept"
@@ -25,9 +25,11 @@ internal class BasicNetworking: Networkable, NetworkableError {
     typealias Result = Networking.Result
     
     init(tokenFinder: @escaping () -> String,
+         unauthorizedHandler: @escaping () -> () = {},
          jsonEncoder: @escaping () -> JSONEncoder = {JSONEncoder()},
          jsonDecoder: @escaping () -> JSONDecoder = {JSONDecoder()}) {
         self.tokenFinder = tokenFinder
+        self.unauthorizedHandler = unauthorizedHandler
         self.jsonEncoder = jsonEncoder
         self.jsonDecoder = jsonDecoder
     }
@@ -168,46 +170,43 @@ internal class BasicNetworking: Networkable, NetworkableError {
     }
 }
 
-// MARK:- Refresh token
-extension BasicNetworking {
-    func unauthorizedHandler() {
-        guard let delegate = delegate else {
-            NSLog("Configure refresh token completion")
-            return
-        }
-        delegate.unauthorizedHandler(networking: self)
-    }
-}
-
-//MARK:- Data processing
+//MARK: - Data processing
 extension BasicNetworking {
     private func dataTaskHelper<K: Codable>(_ request: URLRequest, retryCount: Int = 0, requestTimeout: TimeInterval = 20.0, completion: @escaping (Result<K>) -> Void) {
         //creating dataTask using the session object to send data to the server
         let session: URLSession = URLSession(configuration: getSessionConfig(requestTimeout))
         let task: URLSessionDataTask = session.dataTask(with: request) { [unowned self] data, response, error in
-            let response: HTTPURLResponse? = response as? HTTPURLResponse
-            
-            if let error = error {
-                process(error: error, completion: completion)
-            } else if hasServerErrors(response), let status = response?.status {
-                
-                
-                if let delegate = delegate, delegate.shouldRefreshToken(status: status), retryCount < 1 {
-                    unauthorizedHandler()
-                    
-                    // wait
-                    sleep(2)
-                    
-                    let newRequest = cloneRequest(request: request, isAuthenticated: true)
-                    dataTaskHelper(request, retryCount: retryCount + 1, completion: completion)
-                } else {
-                    process(status: status, completion: completion)
-                }
-            } else if let jsonData = data {
-                parse(json: jsonData, completion: completion)
-            }
+            dataTaskCompletion(response, error, data, request: request, retryCount: retryCount, completion: completion)
         }
         task.resume()
+    }
+    
+    fileprivate func dataTaskCompletion<K: Codable>(_ response: URLResponse?, _ error: Error?, _ data: Data?, request: URLRequest, retryCount: Int = 0, completion: @escaping (Result<K>) -> Void) {
+        let response: HTTPURLResponse? = response as? HTTPURLResponse
+        
+        if let error = error {
+            process(error: error, completion: completion)
+            return
+        } 
+        
+        if hasServerErrors(response), let status = response?.status {
+            
+            if shouldRefreshToken(status: status), retryCount < 1, let unauthorizedHandler = unauthorizedHandler {
+                unauthorizedHandler()
+                
+                // wait
+                sleep(2)
+                
+                // Re run request which failed on authorization
+                let newRequest = cloneRequest(request: request, isAuthenticated: true)
+                dataTaskHelper(newRequest, retryCount: retryCount + 1, completion: completion)
+            } else {
+                process(status: status, completion: completion)
+            }
+            
+        } else if let jsonData = data {
+            parse(json: jsonData, completion: completion)
+        }
     }
     
     func process<K: Codable>(status: HTTPStatusCode, completion: @escaping (Result<K>) -> Void) {
@@ -233,7 +232,7 @@ extension BasicNetworking {
     }
 }
 
-//MARK:- Helpers
+//MARK: - Helpers
 extension BasicNetworking {
     func createBoundary() -> String {
         "B-\(UUID().uuidString)"
