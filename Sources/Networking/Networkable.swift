@@ -32,7 +32,7 @@ public protocol Networkable: AnyObject {
     func shouldRefreshToken(status: HTTPStatusCode) -> Bool
     
     var tokenFinder: (() -> String)? { get }
-    var unauthorizedHandler: (() -> ())? { get }
+    var unauthorizedHandler: (() -> ())? { get set }
     
     func patchSignatureImage<K: Codable>(url: URL, parameters: [String: String], imageData: [String: Data], completion: @escaping (Result<K>) -> Void)
     func patch<Posted: Codable, K: Codable>(url: URL, parameters: Posted, isAuthenticated: Bool, completion: @escaping (Result<K>) -> Void)
